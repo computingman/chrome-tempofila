@@ -41,10 +41,15 @@ function checkForLogTimeModal(addedNode) {
     console.log(`"Log Time" modal dialog found.`);
 
     const durationField = modalDialog.querySelector('#durationField');
-    const durationDiv = durationField.parentElement;
+    const durationDiv = durationField.parentElement.parentElement;
+    
+    // Add "Fill" button...
     const fillButton = document.createElement("button");
-    fillButton.className = durationDiv.className
-    fillButton.innerText = "Fill";
+    const fillIcon = document.createElement("img");
+    fillIcon.src = chrome.runtime.getURL('images/paint-bucket.png');
+    fillIcon.width = 26;
+    fillButton.appendChild(fillIcon);
+    fillButton.title = "Fill duration";
     fillButton.onclick = function() { 
       try {
         onFillClicked(modalDialog, durationField);
@@ -54,6 +59,13 @@ function checkForLogTimeModal(addedNode) {
       return false; // Signal that the click event is handled, so the button won't refresh the page (i.e. following the undefined 'href' link).
     };
     durationDiv.appendChild(fillButton);
+
+    // Copy styling from the "Cancel" button to the "Fill" button...
+    const cancelButton = modalDialog.querySelector('button[data-testid="cancelLogTime"]');
+    fillButton.setAttribute('class', cancelButton.getAttribute('class'));
+    fillIcon.setAttribute('class', cancelButton.querySelector('span').getAttribute('class'));
+    // Adjust margin so that the "Fill" button sits directly adjacent to the duration field...
+    fillButton.setAttribute('style', 'margin-top: -5px; margin-left: 0px;');
 }
 
 function onFillClicked(modalDialog, durationField) {
