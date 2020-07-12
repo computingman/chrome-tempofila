@@ -1,9 +1,8 @@
 {
   "name": "Tempofila",
   "version": "1.0",
-  "description": "Unofficial extension for Tempo Timesheets (Jira app) to fill-in remaining minutes of your workday with a time entry for your fav project.",
+  "description": "Unofficial extension for Tempo Timesheets (Jira app) to fill-in remaining minutes of your workday with a time entry for your fav issue.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
-  "options_page": "options.html",
   "background": {
     "scripts": ["background.js"],
     "persistent": false
@@ -16,7 +15,6 @@
     }
   ],
   "page_action": {
-    "default_popup": "popup.html",
     "default_icon": {
       "16": "images/get_started16.png",
       "32": "images/get_started32.png",

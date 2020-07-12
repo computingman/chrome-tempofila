@@ -5,15 +5,7 @@
 'use strict';
 
 chrome.runtime.onInstalled.addListener(function() {
-  chrome.storage.sync.set({color: '#3aa757', favProject: 'TEMPO-153'}, function() {
-    console.log('Tempofila installed. Default fav project: TEMPO-153');
-  });
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
-    chrome.declarativeContent.onPageChanged.addRules([{
-      conditions: [new chrome.declarativeContent.PageStateMatcher({
-        pageUrl: {hostEquals: 'tigerspike.atlassian.net', schemes: ['https'], pathContains: 'tempo-app'},
-      })],
-      actions: [new chrome.declarativeContent.ShowPageAction()]
-    }]);
+  chrome.storage.sync.set({favIssue: 'TEMPO-153'}, function() {
+    console.log('Tempofila installed. Default fav issue: TEMPO-153');
   });
 });
