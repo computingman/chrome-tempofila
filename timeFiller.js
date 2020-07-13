@@ -29,7 +29,10 @@ if (tempoContainer != null) {
 }
 
 function checkForLogTimeModal(addedNode) {
-    const modalDialog = addedNode.querySelector && addedNode.querySelector('div[role="dialog"]');
+    const issueInput = addedNode.querySelector && addedNode.querySelector('#form-issue-input');
+    if (issueInput == null) return;
+
+    const modalDialog = issueInput.closest('div[role="dialog"]'); // Get the nearest ancestor "dialog" container.
     if (modalDialog == null) return;
 
     const header = modalDialog.querySelector('header > h2');
@@ -40,13 +43,11 @@ function checkForLogTimeModal(addedNode) {
 
     console.log(`"Log Time" modal dialog found.`);
 
-    addFavIssueButton(modalDialog);
+    addFavIssueButton(modalDialog, issueInput);
     addFillDurationButton(modalDialog);
 }
 
-function addFavIssueButton(modalDialog) {
-  const issueInput = modalDialog.querySelector('#form-issue-input');
-  
+function addFavIssueButton(modalDialog, issueInput) {
   const favButton = document.createElement("button");
   favButton.innerText = "Fav";
   favButton.onclick = function() {
@@ -58,7 +59,7 @@ function addFavIssueButton(modalDialog) {
     return false; // Signal that the click event is handled, so the button won't refresh the page (i.e. following the undefined 'href' link).
   };
 
-  const iconContainer = issueInput.parentElement.querySelector('span[data-testid="input-icon-container"]');
+  const iconContainer = issueInput.parentElement.parentElement;
   iconContainer.appendChild(favButton);
 }
 
@@ -66,15 +67,14 @@ function onFavIssueClicked(modalDialog, issueInput) {
   chrome.storage.sync.get('favIssue', function(data) {
 
   // Set the issue input field value:
-  issueInput.focus();
   issueInput.value = data.favIssue;
   issueInput.dispatchEvent(new window.KeyboardEvent('change', { bubbles: true }));
 
   const selection = modalDialog.querySelector('div[data-testid="issue_TEMPO-153"]');
   selection.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-  console.log(`Filled fav issue: ${issueInput.value}`);
 
   modalDialog.focus();
+  console.log(`Filled fav issue: ${data.favIssue}`);
   });
 }
 
