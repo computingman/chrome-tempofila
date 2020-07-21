@@ -43,13 +43,23 @@ function checkForLogTimeModal(addedNode) {
 
     console.log(`"Log Time" modal dialog found.`);
 
-    addFavIssueButton(modalDialog, issueInput);
-    addFillDurationButton(modalDialog);
+    // Increase the dialog width:
+    const section = issueInput.closest('section');
+    section.setAttribute('style', 'min-width: 750px;')
+
+    // Copy styling from the "Cancel" button to the "Fav" and "Fill" buttons...
+    const templateButton = modalDialog.querySelector('button[data-testid="cancelLogTime"]');
+    addFavIssueButton(modalDialog, issueInput, templateButton);
+    addFillDurationButton(modalDialog, templateButton);
 }
 
-function addFavIssueButton(modalDialog, issueInput) {
+function addFavIssueButton(modalDialog, issueInput, templateButton) {
   const favButton = document.createElement("button");
-  favButton.innerText = "Fav";
+  const favIcon = document.createElement("img");
+  favIcon.src = chrome.runtime.getURL('images/heart.png');
+  favIcon.width = 26;
+  favButton.appendChild(favIcon);
+  favButton.title = "Favourite issue";
   favButton.onclick = function() {
     try {
       onFavIssueClicked(modalDialog, issueInput);
@@ -59,8 +69,17 @@ function addFavIssueButton(modalDialog, issueInput) {
     return false; // Signal that the click event is handled, so the button won't refresh the page (i.e. following the undefined 'href' link).
   };
 
-  const iconContainer = issueInput.parentElement.parentElement;
+  const issueInputDiv = issueInput.parentElement;
+  issueInputDiv.setAttribute('style', 'width: 688px;');
+
+  const iconContainer = issueInputDiv.parentElement;
   iconContainer.appendChild(favButton);
+
+  // Copy styling from the template button to the "Fav" button...
+  favButton.setAttribute('class', templateButton.getAttribute('class'));
+  favIcon.setAttribute('class', templateButton.querySelector('span').getAttribute('class'));
+  // Adjust margin so that the "Fill" button sits directly adjacent to the issue input field...
+  favButton.setAttribute('style', 'margin-top: -5px; margin-left: 0px;');
 }
 
 function onFavIssueClicked(modalDialog, issueInput) {
@@ -78,7 +97,7 @@ function onFavIssueClicked(modalDialog, issueInput) {
   });
 }
 
-function addFillDurationButton(modalDialog) {
+function addFillDurationButton(modalDialog, templateButton) {
   const durationField = modalDialog.querySelector('#durationField');
   const durationDiv = durationField.parentElement.parentElement;
   
@@ -99,10 +118,9 @@ function addFillDurationButton(modalDialog) {
   };
   durationDiv.appendChild(fillButton);
 
-  // Copy styling from the "Cancel" button to the "Fill" button...
-  const cancelButton = modalDialog.querySelector('button[data-testid="cancelLogTime"]');
-  fillButton.setAttribute('class', cancelButton.getAttribute('class'));
-  fillIcon.setAttribute('class', cancelButton.querySelector('span').getAttribute('class'));
+  // Copy styling from the template button to the "Fill" button...
+  fillButton.setAttribute('class', templateButton.getAttribute('class'));
+  fillIcon.setAttribute('class', templateButton.querySelector('span').getAttribute('class'));
   // Adjust margin so that the "Fill" button sits directly adjacent to the duration field...
   fillButton.setAttribute('style', 'margin-top: -5px; margin-left: 0px;');
 }

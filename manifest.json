@@ -28,6 +28,6 @@
     "48": "images/get_started48.png",
     "128": "images/get_started128.png"
   },
-  "web_accessible_resources": ["images/paint-bucket.png"],
+  "web_accessible_resources": ["images/paint-bucket.png", "images/heart.png"],
   "manifest_version": 2
 }
