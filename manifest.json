@@ -3,10 +3,6 @@
   "version": "1.0",
   "description": "Unofficial extension for Tempo Timesheets (Jira app) to fill-in remaining minutes of your workday with a time entry for your fav issue.",
   "permissions": ["activeTab", "declarativeContent", "storage"],
-  "background": {
-    "scripts": ["background.js"],
-    "persistent": false
-  },
   "content_scripts": [
     {
       "matches": [ "https://tigerspike.atlassian.net/plugins/*", "https://app.tempo.io/*" ],

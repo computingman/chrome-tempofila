@@ -45,7 +45,7 @@ function checkForLogTimeModal(addedNode) {
 
     // Increase the dialog width:
     const section = issueInput.closest('section');
-    section.setAttribute('style', 'min-width: 750px;')
+    section.style.minWidth = '750px';
 
     // Copy styling from the "Cancel" button to the "Fav" and "Fill" buttons...
     const templateButton = modalDialog.querySelector('button[data-testid="cancelLogTime"]');
@@ -59,7 +59,7 @@ function addFavIssueButton(modalDialog, issueInput, templateButton) {
   favIcon.src = chrome.runtime.getURL('images/heart.png');
   favIcon.width = 26;
   favButton.appendChild(favIcon);
-  favButton.title = "Favourite issue";
+  favButton.title = "Fav issue";
   favButton.onclick = function() {
     try {
       onFavIssueClicked(modalDialog, issueInput);
@@ -70,7 +70,7 @@ function addFavIssueButton(modalDialog, issueInput, templateButton) {
   };
 
   const issueInputDiv = issueInput.parentElement;
-  issueInputDiv.setAttribute('style', 'width: 688px;');
+  issueInputDiv.style.width = '688px';
 
   const iconContainer = issueInputDiv.parentElement;
   iconContainer.appendChild(favButton);
@@ -79,22 +79,64 @@ function addFavIssueButton(modalDialog, issueInput, templateButton) {
   favButton.setAttribute('class', templateButton.getAttribute('class'));
   favIcon.setAttribute('class', templateButton.querySelector('span').getAttribute('class'));
   // Adjust margin so that the "Fill" button sits directly adjacent to the issue input field...
-  favButton.setAttribute('style', 'margin-top: -5px; margin-left: 0px;');
+  favButton.style.marginTop = '-5px';
+  favButton.style.marginLeft = '0px';
 }
 
 function onFavIssueClicked(modalDialog, issueInput) {
-  chrome.storage.sync.get('favIssue', function(data) {
+  if (issueInput.value) {
+    // An issue has been selected in the dialog, so update the stored favourite:
+    const newFavIssue = issueInput.value;
+    chrome.storage.sync.set({favIssue: newFavIssue}, function() {
+      showSnackbarNotification(issueInput, `Fav issue set to "${newFavIssue}".`)
+    });
+  } else {
+    // No issue has been selected in the dialog, so try to set the input field from the stored favourite:
+    chrome.storage.sync.get('favIssue', function(data) {
+      if (data.favIssue) {
+        // Set the issue input field value:
+        issueInput.value = data.favIssue;
+        issueInput.dispatchEvent(new window.KeyboardEvent('change', { bubbles: true }));
 
-  // Set the issue input field value:
-  issueInput.value = data.favIssue;
-  issueInput.dispatchEvent(new window.KeyboardEvent('change', { bubbles: true }));
+        const issueKey = data.favIssue.split(' ', 1)[0];
+        const selection = modalDialog.querySelector(`div[data-testid="issue_${issueKey}"]`);
+        selection.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 
-  const selection = modalDialog.querySelector('div[data-testid="issue_TEMPO-153"]');
-  selection.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+        modalDialog.focus();
+        console.log(`Filled fav issue: ${data.favIssue}`);
+      } else {
+        showSnackbarNotification(issueInput, 'No fav issue found in browser storage.');
+      }
+    });
+  }
+}
 
-  modalDialog.focus();
-  console.log(`Filled fav issue: ${data.favIssue}`);
-  });
+function showSnackbarNotification(issueInput, message) {
+  console.log(message);
+  addSnackbarStyle();
+  const container = issueInput.parentElement.parentElement;
+  const messageDiv = document.createElement('div');
+  messageDiv.id = 'snackbar';
+  messageDiv.setAttribute('class', 'show');
+  messageDiv.innerText = message;
+  container.appendChild(messageDiv);
+  // After 3 seconds, remove the message:
+  setTimeout(function(){ container.removeChild(messageDiv); }, 3000);
+}
+
+function addSnackbarStyle() {
+  if (document.querySelector('#snackbarStyle')) return; // Style already exists.
+
+  const style = document.createElement('style');
+  style.id = 'snackbarStyle';
+  style.innerHTML = `#snackbar { visibility: hidden; color: #fff; background-color: #333; border-radius: 2px; padding: 8px; }
+    #snackbar.show { visibility: visible; -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+    @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+    @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+    @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }`;
+  const firstScript = document.querySelector('script');
+  firstScript.parentNode.insertBefore(style, firstScript);
 }
 
 function addFillDurationButton(modalDialog, templateButton) {
@@ -122,7 +164,8 @@ function addFillDurationButton(modalDialog, templateButton) {
   fillButton.setAttribute('class', templateButton.getAttribute('class'));
   fillIcon.setAttribute('class', templateButton.querySelector('span').getAttribute('class'));
   // Adjust margin so that the "Fill" button sits directly adjacent to the duration field...
-  fillButton.setAttribute('style', 'margin-top: -5px; margin-left: 0px;');
+  fillButton.style.marginTop = '-5px';
+  fillButton.style.marginLeft = '0px';
 }
 
 function onFillClicked(modalDialog, durationField) {
