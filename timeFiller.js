@@ -1,3 +1,5 @@
+var issueKeyToSelect = null;
+
 const observeDOM = (function(){
   const MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
   
@@ -23,22 +25,22 @@ const tempoContainer = document.getElementById('tempo-container');
 if (tempoContainer != null) {
     observeDOM(tempoContainer, function(m){ 
         m.forEach(record => {
-            record.addedNodes.forEach(addedNode => checkForLogTimeModal(addedNode));
+            record.addedNodes.forEach(addedNode => checkForLogTimeModal(addedNode) || selectFavIssue(addedNode));
         });
      });
 }
 
 function checkForLogTimeModal(addedNode) {
     const issueInput = addedNode.querySelector && addedNode.querySelector('#form-issue-input');
-    if (issueInput == null) return;
+    if (issueInput == null) return false;
 
     const modalDialog = issueInput.closest('div[role="dialog"]'); // Get the nearest ancestor "dialog" container.
-    if (modalDialog == null) return;
+    if (modalDialog == null) return false;
 
     const header = modalDialog.querySelector('header > h2');
     if (header == null || header.innerText.indexOf("Log Time") < 0) {
       console.log(`Modal dialog found, but header was "${header == null ? null : header.innerText}".`)
-      return;
+      return false;
     }
 
     console.log(`"Log Time" modal dialog found.`);
@@ -49,11 +51,25 @@ function checkForLogTimeModal(addedNode) {
 
     // Copy styling from the "Cancel" button to the "Fav" and "Fill" buttons...
     const templateButton = modalDialog.querySelector('button[data-testid="cancelLogTime"]');
-    addFavIssueButton(modalDialog, issueInput, templateButton);
+    addFavIssueButton(issueInput, templateButton);
     addFillDurationButton(modalDialog, templateButton);
+
+    return true;
 }
 
-function addFavIssueButton(modalDialog, issueInput, templateButton) {
+function selectFavIssue(addedNode) {
+  if (!issueKeyToSelect) return false;
+
+  const selection = addedNode.querySelector && addedNode.querySelector(`div[data-testid="issue_${issueKeyToSelect}"]`);
+  if (!selection || !selection.closest('#issueSearchResults')) return; // The issue key being searched was not found in the search-results list.
+
+  selection.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+
+  console.log(`Filled fav issue: ${issueKeyToSelect}`);
+  issueKeyToSelect = null;
+}
+
+function addFavIssueButton(issueInput, templateButton) {
   const favButton = document.createElement("button");
   const favIcon = document.createElement("img");
   favIcon.src = chrome.runtime.getURL('images/heart.png');
@@ -62,7 +78,7 @@ function addFavIssueButton(modalDialog, issueInput, templateButton) {
   favButton.title = "Fav issue";
   favButton.onclick = function() {
     try {
-      onFavIssueClicked(modalDialog, issueInput);
+      onFavIssueClicked(issueInput);
     } catch(error) {
       console.log(error); // Suppress any error.
     }
@@ -83,7 +99,7 @@ function addFavIssueButton(modalDialog, issueInput, templateButton) {
   favButton.style.marginLeft = '0px';
 }
 
-function onFavIssueClicked(modalDialog, issueInput) {
+function onFavIssueClicked(issueInput) {
   if (issueInput.value) {
     // An issue has been selected in the dialog, so update the stored favourite:
     const newFavIssue = issueInput.value;
@@ -97,13 +113,9 @@ function onFavIssueClicked(modalDialog, issueInput) {
         // Set the issue input field value:
         issueInput.value = data.favIssue;
         issueInput.dispatchEvent(new window.KeyboardEvent('change', { bubbles: true }));
-
-        const issueKey = data.favIssue.split(' ', 1)[0];
-        const selection = modalDialog.querySelector(`div[data-testid="issue_${issueKey}"]`);
-        selection.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-
-        modalDialog.focus();
-        console.log(`Filled fav issue: ${data.favIssue}`);
+        
+        issueKeyToSelect = data.favIssue.split(' ', 1)[0];
+        console.log(`Finding fav issue: ${data.favIssue}…`);
       } else {
         showSnackbarNotification(issueInput, 'No fav issue found in browser storage.');
       }
