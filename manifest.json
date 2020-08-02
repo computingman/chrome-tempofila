@@ -1,11 +1,11 @@
 {
   "name": "Tempofila",
-  "version": "1.0",
-  "description": "Unofficial extension for Tempo Timesheets (Jira app) to fill-in remaining minutes of your workday with a time entry for your fav issue.",
-  "permissions": ["activeTab", "declarativeContent", "storage"],
+  "version": "0.0.0.1",
+  "description": "Fill-in remaining minutes of your workday with a time entry for your fav issue. Unofficial Tempo Timesheets (Jira app) extension.",
+  "permissions": ["storage"],
   "content_scripts": [
     {
-      "matches": [ "https://tigerspike.atlassian.net/plugins/*", "https://app.tempo.io/*" ],
+      "matches": [ "https://app.tempo.io/*" ],
       "all_frames": true,
       "js": ["timeFiller.js"]
     }
