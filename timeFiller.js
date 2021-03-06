@@ -39,11 +39,11 @@ function checkForLogTimeModal(addedNode) {
 
     const header = modalDialog.querySelector('header > h2');
     if (header == null || header.innerText.indexOf("Log Time") < 0) {
-      console.log(`Modal dialog found, but header was "${header == null ? null : header.innerText}".`)
+      //console.log(`Modal dialog found, but header was "${header == null ? null : header.innerText}".`)
       return false;
     }
 
-    console.log(`"Log Time" modal dialog found.`);
+    //console.log(`"Log Time" modal dialog found.`);
 
     // Increase the dialog width:
     const section = issueInput.closest('section');
@@ -65,7 +65,7 @@ function selectFavIssue(addedNode) {
 
   selection.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 
-  console.log(`Filled fav issue: ${issueKeyToSelect}`);
+  //console.log(`Filled fav issue: ${issueKeyToSelect}`);
   issueKeyToSelect = null;
 }
 
@@ -115,7 +115,7 @@ function onFavIssueClicked(issueInput) {
         issueInput.dispatchEvent(new window.KeyboardEvent('change', { bubbles: true }));
         
         issueKeyToSelect = data.favIssue.split(' ', 1)[0];
-        console.log(`Finding fav issue: ${data.favIssue}…`);
+        //console.log(`Finding fav issue: ${data.favIssue}…`);
       } else {
         showSnackbarNotification(issueInput, 'No fav issue found in browser storage.');
       }
@@ -188,14 +188,14 @@ function onFillClicked(modalDialog, durationField) {
   const twoDigitDay = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(currentDay);
   const twoDigitMonth = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(currentDay);
   const currentDayTitle = `${threeLetterWeekday} ${twoDigitDay}.${twoDigitMonth}`;
-  console.log(`Filling minutes for workday: ${currentDayTitle}`);
+  //console.log(`Filling minutes for workday: ${currentDayTitle}`);
 
   // Get the number of minutes already logged and the target total minutes for the current date:
   const dayHeaders = tempoContainer.querySelector('#calendarCanvasHeader');
-  const currentDayHeader = Array.from(dayHeaders.querySelectorAll('div[name="calendarCanvasDayHeader"]>h3'))
+  const currentDayHeader = Array.from(dayHeaders.querySelectorAll('div[name="calendarCanvasDayHeader"]'))
     .find(day => day.querySelector('span').title == currentDayTitle);
-    const tallyHeader = Array.from(currentDayHeader.querySelectorAll('span')).find(span => span.title.indexOf(' of ') > 0);
-  console.log(`Initially tally: ${tallyHeader.title}`);
+  const tallyHeader = Array.from(currentDayHeader.querySelectorAll('span')).find(span => span.title.indexOf(' of ') > 0);
+  //console.log(`Initial tally: ${tallyHeader.title}`);
   const parts = tallyHeader.title.split(' of ', 2);
   const alreadyLoggedMinutes = getMinutesFromTimeSpanHeader(parts[0]);
   const totalTargetMinutes = getMinutesFromTimeSpanHeader(parts[1]);
@@ -206,7 +206,7 @@ function onFillClicked(modalDialog, durationField) {
   durationField.focus();
   durationField.value = `${remainderMinutes}m`;
   durationField.dispatchEvent(new window.KeyboardEvent('change', { bubbles: true }));
-  console.log(`Filled duration: ${durationField.value}`);
+  //console.log(`Filled duration: ${durationField.value}`);
 
   modalDialog.focus();
 }
