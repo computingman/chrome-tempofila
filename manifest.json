@@ -1,6 +1,6 @@
 {
   "name": "Tempofila",
-  "version": "0.0.0.1",
+  "version": "0.0.0.2",
   "description": "Fill-in remaining minutes of your workday with a time entry for your fav issue. Unofficial Tempo Timesheets (Jira app) extension.",
   "permissions": ["storage"],
   "content_scripts": [
